@@ -23,7 +23,6 @@ def validCloudFormation(step):
 
 
 # CFN Top Level Stuff
-
 @step(u'And that has a resource called "([^"]*)"')
 def thatHasAResource(step, resource_name):
     world.structure = world.structure['Resources'][resource_name]
@@ -40,8 +39,8 @@ def thatHasAParameter(step, parameter_name):
 def thatHasAOutput(step, output_name):
     world.structure = world.structure['Outputs'][output_name]
 
-# Generic stuff
 
+# Generic stuff
 @step(u'Then its type is "([^"]*)"')
 def typeCheck(step, value):
     assert world.structure['Type'] == value
@@ -56,16 +55,17 @@ def thatHasAKey(step, key_name):
 
 @step(u'Then the value for that key is "([^"]*)"')
 def valueForKeyIs(step, value):
-    assert world.structure == value
+    if world.structure in [True, False]:
+        assert unicode(world.structure).lower() == value
+    else:
+        assert world.structure == value
 
 @step(u'Then it is a reference to "([^"]*)"')
 def isAReferenceTo(step, value):
     assert world.structure == {'Ref': value}
 
-# Parameters
 
+# Parameters
 @step(u'Then its default is "([^"]*)"')
 def itsDefaultIs(step, value):
-
     assert world.structure['Default'] == value
-
