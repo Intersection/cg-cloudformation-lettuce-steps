@@ -80,7 +80,7 @@ def valueForKeyIs(step, value):
 # assert the current `world.structure' is a reference to `value'
 @step(u'Then it is a reference to "([^"]*)"')
 def isAReferenceTo(step, value):
-    assert world.structure == { 'Ref' : value }
+    assert world.structure == { "Ref" : value }
 
 
 # assert the default value for a parameter is `value'
@@ -102,12 +102,22 @@ def thatHasASecurityGroup(step, securitygroup_name):
 #   Notes:
 #     - `direction' should be either `egress' or `ingress'
 #     - `port' can be a single value or a range of two values delimited by the ` to ' string, e.g.: "80 to 81"
-#     - `fromto' is only used in the decorator's regexp
+#     - `fromto' is only used in the decorator's regexp, but its logic is validated in the function such as:
+#         - `fromto' must be equal to `to' in egress directions
+#         - `fromto' must be equal to `from' in ingress directions
 #     - `target' can be:
 #         - a CidrIp
 #         - a reference to a CidrIp (e.g. a template parameter)
 #         - a reference to a [Destination|Source]SecurityGroupId
 def thenCheckSecurityGroupRulesAre(step, direction, ipprotocol, port, fromto, target):
+
+    # validate `fromto' logic
+    if direction == 'egress':
+        if fromto != 'to':
+            assert False, '`fromto\' must be equal to `to\' in an egress direction.'
+    elif direction == 'ingress':
+        if fromto != 'from':
+            assert False, '`fromto\' must be equal to `from\' in an ingress direction.'
 
     # whether FromPort and ToPort values are within a range or if they are the same value
     try:
@@ -135,7 +145,7 @@ def thenCheckSecurityGroupRulesAre(step, direction, ipprotocol, port, fromto, ta
         fromport_template =  parameters_from_template[num]['FromPort']
         toport_template =  parameters_from_template[num]['ToPort']
 
-        target_template = ""
+        target_template = ''
         try:
             target_template =  parameters_from_template[num]['CidrIp']
         except KeyError:
@@ -147,16 +157,16 @@ def thenCheckSecurityGroupRulesAre(step, direction, ipprotocol, port, fromto, ta
                 try:
                     target_template =  parameters_from_template[num]['DestinationSecurityGroupId']
                 except KeyError:
-                    print "DestinationSecurityGroupId not found."
+                    print 'DestinationSecurityGroupId not found.'
             if direction == 'ingress':
                 try:
                     target_template =  parameters_from_template[num]['SourceSecurityGroupId']
                 except KeyError:
-                    print "SourceSecurityGroupId not found."
+                    print 'SourceSecurityGroupId not found.'
 
         # check if CidrIp or [Destination|Source]SecurityGroupId values are references in the template
         target_template_is_reference = False
-        if target_template == { 'Ref' : target }:
+        if target_template == { "Ref" : target }:
             target_template_is_reference = True
 
         # scan [Egress|Ingress] rules and exit the loop if a matching one is found 
