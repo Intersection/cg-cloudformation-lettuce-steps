@@ -66,3 +66,31 @@ def isAReferenceTo(step, value):
 @step(u'Then its default is "([^"]*)"')
 def itsDefaultIs(step, value):
     assert world.structure['Default'] == value
+
+
+# assert specified tags for a resource exist
+@step(u'Then there is a tag whose key is "([^"]*)" and whose value is "([^"]*)"')
+def thenCheckThisTagExists(step, key, value):
+
+    # set the pointer to the Tags element
+    tags_from_template = world.structure['Properties']['Tags']
+
+    # set tag_matches variable to False
+    tag_matches = False
+
+    # parse tags from the template
+    for num, val in enumerate(tags_from_template):
+        key_template = tags_from_template[num]['Key']
+        value_template = tags_from_template[num]['Value']
+
+        # check if the tag value from the template is actually a reference rather than a value
+        value_template_is_reference = False
+        if value_template == { "Ref" : value }:
+            value_template_is_reference = True
+
+        # scan tags for the resource and exit the loop if a matching key/value pair is found
+        if key_template == key \
+                and (value_template == value or value_template_is_reference):
+            tag_matches = True
+            break
+    assert tag_matches
