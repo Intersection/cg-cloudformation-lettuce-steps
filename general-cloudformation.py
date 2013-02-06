@@ -43,12 +43,16 @@ def typeCheck(step, value):
 
 
 # assert the value of a key is equal to `value'
-# if `world.structure' is a Boolean (True or False) convert it to a lowercase string
 @step(u'Then the value for that key is "([^"]*)"')
 def valueForKeyIs(step, value):
-    if world.structure in [True, False]:
+    # if `world.structure' is a boolean, convert it to a lowercase, unicode string and perform the assertion
+    if isinstance(world.structure, bool):
         assert unicode(world.structure).lower() == value
+    # if `world.structure' is an integer, convert it to a unicode string and perform the assertion
+    elif isinstance(world.structure, int):
+        assert unicode(world.structure) == value
     else:
+        # `world.structure' is unicode
         assert world.structure == value
 
 
