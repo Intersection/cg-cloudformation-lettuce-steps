@@ -22,7 +22,7 @@ def recordsetValidation(step, a_an, type, name, value, ttl, hosted_zone_name):
     record_matches = False
     resource_records_from_template = world.structure['ResourceRecords']
     for num, val in enumerate(resource_records_from_template):
-        if value == val:
+        if val == value or val == { 'Ref' : value }:
             record_matches = True
             break
     assert record_matches
