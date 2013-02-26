@@ -10,7 +10,13 @@ def recordsetValidation(step, a_an, type, name, value, ttl, hosted_zone_name):
     world.structure = world.structure['Properties']
 
     # check record name
-    assert name == world.structure['Name']
+    name_is_reference = False
+    if world.structure['Name'] == { 'Fn::Join' : [ '', [ name, '.', { 'Ref': hosted_zone_name }, '.'] ] }:
+        name_is_reference = True
+    if name == world.structure['Name'] or name_is_reference:
+        assert True
+    else:
+        assert False
 
     # check value
     record_matches = False
